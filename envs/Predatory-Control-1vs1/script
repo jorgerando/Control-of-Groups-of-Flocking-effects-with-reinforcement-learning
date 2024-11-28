@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Número de procesos en paralelo
+n_procesos=10
+
+# Función para lanzar un proceso
+function lanzar_proceso {
+  eval "python3 train.py" &
+}
+
+# Función para matar todos los procesos hijos cuando el script termina
+function limpiar_procesos {
+  echo "Terminando todos los procesos hijos..."
+  kill $(jobs -p) 2>/dev/null
+  exit 0
+}
+
+# Capturar las señales SIGTERM y SIGINT para limpiar antes de salir
+trap limpiar_procesos SIGTERM SIGINT
+
+# Bucle para lanzar n procesos en paralelo
+for ((i=1; i<=n_procesos; i++)); do
+  lanzar_proceso
+done
+
+# Esperar a que todos los procesos terminen
+wait
+
+echo "Todos los procesos han finalizado"
