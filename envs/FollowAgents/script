@@ -1,0 +1,23 @@
+#!/bin/bash
+
+n_procesos=10
+
+function lanzar_proceso {
+  eval "python3 train.py" &
+}
+
+function limpiar_procesos {
+  echo "Terminando todos los procesos hijos..."
+  kill $(jobs -p) 2>/dev/null
+  exit 0
+}
+
+trap limpiar_procesos SIGTERM SIGINT
+
+for ((i=1; i<=n_procesos; i++)); do
+  lanzar_proceso
+done
+
+wait
+
+echo "Todos los procesos han finalizado"
